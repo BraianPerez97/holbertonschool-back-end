@@ -1,32 +1,30 @@
+#!/usr/bin/python3
 import requests
 import sys
 
-API_URL = "https://jsonplaceholder.typicode.com"
+if __name__ == '__main__':
 
+    # get employee ID from command line argument
+    if len(sys.argv) < 2:
+        print("Usage: {} EMPLOYEE_ID".format(sys.argv[0]))
+        sys.exit(1)
+    employee_id = int(sys.argv[1])
 
-def get_employee_data(employee_id):
-    response = requests.get(f"{API_URL}/users/{employee_id}/todos")
+    # Make API request
+    response = requests.get(
+        "https://jsonplaceholder.typicode.com/users/{}/todos".format(
+            employee_id)
+    )
     data = response.json()
-    return data
 
+    # Parse data
+    employee_name = data[0]["userId"]
+    total_task = len(data)
+    done_task = [task for task in data if task["completed"]]
 
-def parse_employee_data(data):
-    employee_name = data[0]["user"]["name"]
-    total_tasks = len(data)
-    done_tasks = [task for task in data if task["completed"]]
-    return employee_name, total_tasks, done_tasks
-
-
-def print_report(employee_name, total_tasks, done_tasks):
-    print(
-        f"Employee {employee_name} is done with tasks ({len(done_tasks)}/{total_tasks}):")
-
-    for task in done_tasks:
-        print("\t - ", task['title'])
-
-
-if __name__ == "__main__":
-    employee_id = sys.argv[1]
-    data = get_employee_data(employee_id)
-    employee_name, total_tasks, done_tasks = parse_employee_data(data)
-    print_report(employee_name, total_tasks, done_tasks)
+    # Print report
+    print("Employee {} is done with task ({}/{}):".format(
+        employee_name, len(done_task), total_task)
+    )
+    for task in done_task:
+        print("\t {}".format(task["title"]))
